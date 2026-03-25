@@ -4,7 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CineLock</title>
-    <link rel="icon" type="" href="favicon.ico" />
+    <script defer src="script.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
   </head>
-  <body></body>
+  <body>
+    <div class="container">
+      <div id="movie-container"></div>
+
+      <div class="screen">SCREEN</div>
+
+      <div id="seat-container"></div>
+
+      <div class="legend">
+        <div><span style="background: #e0e0e0"></span> Available</div>
+        <div><span style="background: #807d7d"></span> Hold</div>
+        <div><span style="background: #c9a227"></span> Selected</div>
+        <div><span style="background: #444"></span> Booked</div>
+      </div>
+    </div>
+  </body>
 </html>

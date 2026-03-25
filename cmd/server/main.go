@@ -10,15 +10,16 @@ import (
 	"syscall"
 	"time"
 
-	root "github.com/SXsid/cine-lock"
+	"github.com/SXsid/cine-lock/internal"
 )
 
 func main() {
 	port := flag.Int("port", 8080, "HTPP server port")
 	flag.Parse()
+	router := internal.NewRouter()
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", *port),
-		Handler: http.FileServerFS(root.StaticAssests),
+		Handler: router,
 	}
 	go func(server *http.Server) {
 		fmt.Printf("server is up and running at %s \n", server.Addr)
