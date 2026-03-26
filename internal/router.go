@@ -9,7 +9,9 @@ import (
 func NewRouter() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServerFS(root.StaticAssests))
-	mux.HandleFunc("/movies", AllMoviesHandler)
+	mux.HandleFunc("GET /movies", AllMoviesHandler)
+	mux.HandleFunc("GET /poll-status", PollSeatStatus)
+	mux.HandleFunc("PATCH /seat-status", ChangeSeatStatus)
 
 	return mux
 }

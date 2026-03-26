@@ -11,6 +11,15 @@ type Movie struct {
 
 type SeatStatus string
 
+func (s SeatStatus) IsValid() bool {
+	switch s {
+	case Booked, Hold, Vacant:
+		return true
+	default:
+		return false
+	}
+}
+
 const (
 	Booked  SeatStatus = "booked"
 	Hold    SeatStatus = "hold"
