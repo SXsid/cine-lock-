@@ -28,8 +28,9 @@ const (
 )
 
 type Seat struct {
-	Name   string
-	Status SeatStatus
+	Name     string
+	Status   SeatStatus
+	LockedBy string
 }
 
 func generateSeats(row, col int) [][]Seat {

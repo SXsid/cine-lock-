@@ -29,3 +29,11 @@ func WriteJson(w http.ResponseWriter, data any, status int, msg string) {
 		fmt.Println(err)
 	}
 }
+
+func ReadJson[T any](r *http.Request) (T, error) {
+	var res T
+	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
+		return res, err
+	}
+	return res, nil
+}

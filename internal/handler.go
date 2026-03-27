@@ -3,7 +3,6 @@ package internal
 import (
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 var Movies = []Movie{
@@ -40,44 +39,65 @@ func PollSeatStatus(w http.ResponseWriter, r *http.Request) {
 	WriteJson(w, Movies[id].Seats, http.StatusOK, "")
 }
 
+type ChangStatusRequest struct {
+	Id     int        `json:"id"`
+	Row    int        `json:"row"`
+	Col    int        `json:"col"`
+	Status SeatStatus `json:"status"`
+	UserID string     `json:"userId"`
+}
+
+//	func (r ChangStatusRequest) Validate() error {
+//		value := r.URL.Query().Get("key")
+//		idData := r.URL.Query().Get("id")
+//
+//		statusData := r.URL.Query().Get("status")
+//
+//		if value == "" || len(value) != 2 || statusData == "" || idData == "" {
+//			http.Error(w, "id ,key and status is required field and should be combinaton of Row and col index", http.StatusBadRequest)
+//			return
+//		}
+//
+//		status := SeatStatus(statusData)
+//
+//		if ok := status.IsValid(); !ok {
+//
+//			http.Error(w, "statsu shoudl SeatStatus type", http.StatusBadRequest)
+//			return
+//		}
+//		data := strings.Split(value, "")
+//
+//		row, err := strconv.Atoi(data[0])
+//		if err != nil {
+//			http.Error(w, err.Error(), http.StatusBadRequest)
+//			return
+//
+//		}
+//		col, err := strconv.Atoi(data[1])
+//		if err != nil {
+//			http.Error(w, err.Error(), http.StatusBadRequest)
+//			return
+//
+//		}
+//
+//		id, err := strconv.Atoi(idData)
+//		if err != nil {
+//			http.Error(w, err.Error(), http.StatusBadRequest)
+//			return
+//
+//		}
+//	}
 func ChangeSeatStatus(w http.ResponseWriter, r *http.Request) {
-	value := r.URL.Query().Get("key")
-	idData := r.URL.Query().Get("id")
-
-	statusData := r.URL.Query().Get("status")
-
-	if value == "" || len(value) != 2 || statusData == "" || idData == "" {
-		http.Error(w, "id ,key and status is required field and should be combinaton of Row and col index", http.StatusBadRequest)
-		return
-	}
-
-	status := SeatStatus(statusData)
-
-	if ok := status.IsValid(); !ok {
-
-		http.Error(w, "statsu shoudl SeatStatus type", http.StatusBadRequest)
-		return
-	}
-	data := strings.Split(value, "")
-
-	row, err := strconv.Atoi(data[0])
+	res, err := ReadJson[ChangStatusRequest](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-
 	}
-	col, err := strconv.Atoi(data[1])
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	// TODO: alot of work and cases to handle
+	seat := &Movies[res.Id].Seats[res.Row][res.Col]
+	if seat.Status != Vacant && res.UserID != seat.LockedBy {
+		http.Error(w, "seat is not vaccant ,please selected any other", http.StatusForbidden)
 		return
-
 	}
-
-	id, err := strconv.Atoi(idData)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-
-	}
-	Movies[id].Seats[row][col].Status = status
+	seat.Status = res.Status
+	seat.LockedBy = res.UserID
 }
