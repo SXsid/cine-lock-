@@ -77,7 +77,7 @@ const main = async () => {
     decline.textContent = "Decline";
     decline.classList.add("decline");
     decline.addEventListener("click", () => {
-      chagneStatus("vacant", key, "");
+      chagneStatus("vacant", key, USER_ID);
       document.body.removeChild(overlaye);
     });
     modal.append(heading, decline, confirm);

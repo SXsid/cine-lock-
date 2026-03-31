@@ -2,32 +2,59 @@ package internal
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
 type Reponse struct {
-	Status bool   `json:"status"`
-	Data   any    `json:"data,omitempty"`
-	Msg    string `json:"message,omitempty"`
+	Data any    `json:"data,omitempty"`
+	Msg  string `json:"message,omitempty"`
 }
 
-func WriteJson(w http.ResponseWriter, data any, status int, msg string) {
-	value := Reponse{
-		Status: true,
-		Data:   data,
-	}
-	json, err := json.Marshal(value)
+type ErrorResponse struct {
+	Error    string            `json:"error"`
+	FieldErr map[string]string `json:"fields,omitempty"`
+}
+
+func write(w http.ResponseWriter, v any, status int) {
+	res, err := json.Marshal(v)
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Server", "go")
 	w.WriteHeader(status)
-	if _, err := w.Write(json); err != nil {
-		fmt.Println(err)
+	w.Write(res)
+}
+
+func writeOK(w http.ResponseWriter, msg string, status int) {
+	v := Reponse{
+		Msg: msg,
 	}
+	write(w, v, status)
+}
+
+func WriteJSON(w http.ResponseWriter, data any, status int) {
+	value := Reponse{
+		Data: data,
+	}
+	write(w, value, status)
+}
+
+func WriteError(w http.ResponseWriter, msg string, status int) {
+	v := ErrorResponse{
+		Error: msg,
+	}
+	write(w, v, status)
+}
+
+func WriteValidation(w http.ResponseWriter, Fielderr map[string]string) {
+	v := ErrorResponse{
+		Error:    "error while validating",
+		FieldErr: Fielderr,
+	}
+	write(w, v, http.StatusBadRequest)
 }
 
 func ReadJson[T any](r *http.Request) (T, error) {

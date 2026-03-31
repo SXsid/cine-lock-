@@ -22,22 +22,26 @@ var Movies = []Movie{
 }
 
 func AllMoviesHandler(w http.ResponseWriter, r *http.Request) {
-	WriteJson(w, Movies, http.StatusOK, "")
+	WriteJSON(w, Movies, http.StatusOK)
 }
 
 func PollSeatStatus(w http.ResponseWriter, r *http.Request) {
 	value := r.URL.Query().Get("id")
 	if value == "" {
-		http.Error(w, "Id is required field", http.StatusBadRequest)
+		WriteError(w, "Id is required field", http.StatusBadRequest)
 		return
 	}
 	id, err := strconv.Atoi(value)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteError(w, err.Error(), http.StatusBadRequest)
 		return
 
 	}
-	WriteJson(w, Movies[id].Seats, http.StatusOK, "")
+	if id >= len(Movies) {
+		WriteError(w, "invalid movie ", http.StatusBadRequest)
+		return
+	}
+	WriteJSON(w, Movies[id].Seats, http.StatusOK)
 }
 
 type ChangStatusRequest struct {
@@ -70,11 +74,11 @@ func (r ChangStatusRequest) Validate() error {
 func ChangeSeatStatus(w http.ResponseWriter, r *http.Request) {
 	res, err := ReadJson[ChangStatusRequest](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if err := res.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	seat := &Movies[res.Id].Seats[res.Row][res.Col]
@@ -89,8 +93,9 @@ func ChangeSeatStatus(w http.ResponseWriter, r *http.Request) {
 
 	}
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusForbidden)
+		WriteError(w, err.Error(), http.StatusForbidden)
 		return
 	}
-	fmt.Fprint(w, "request successfull..")
+
+	writeOK(w, "request successfull..", http.StatusOK)
 }

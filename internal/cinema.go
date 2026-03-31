@@ -34,19 +34,18 @@ func (s *Seat) Hold(userId string) error {
 }
 
 func (s *Seat) Book(userId string) error {
-	if s.Status != Hold && s.LockedBy != userId {
+	if s.Status != Hold || s.LockedBy != userId {
 		return fmt.Errorf("seat can't be booked")
 	}
-	s.LockedBy = userId
 	s.Status = Booked
 	return nil
 }
 
 func (s *Seat) Vaccant(userId string) error {
-	if s.Status != Hold && s.LockedBy != userId {
+	if s.Status != Hold || s.LockedBy != userId {
 		return fmt.Errorf("action can't be peformed")
 	}
-	s.LockedBy = userId
+	s.LockedBy = ""
 	s.Status = Vacant
 	return nil
 }
@@ -54,17 +53,17 @@ func (s *Seat) Vaccant(userId string) error {
 func generateSeats(row, col int) [][]Seat {
 	seats := [][]Seat{}
 	for i := range row {
-		row_seats := []Seat{}
+		rowSeats := []Seat{}
 		for j := range col {
 			seatName := fmt.Sprintf("%s%d", string(rune('A'+i)), j+1)
 			status := Vacant
-			row_seats = append(row_seats, Seat{
+			rowSeats = append(rowSeats, Seat{
 				Name:   seatName,
 				Status: status,
 			})
 
 		}
-		seats = append(seats, row_seats)
+		seats = append(seats, rowSeats)
 	}
 
 	return seats
