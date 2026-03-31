@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -47,57 +48,49 @@ type ChangStatusRequest struct {
 	UserID string     `json:"userId"`
 }
 
-//	func (r ChangStatusRequest) Validate() error {
-//		value := r.URL.Query().Get("key")
-//		idData := r.URL.Query().Get("id")
-//
-//		statusData := r.URL.Query().Get("status")
-//
-//		if value == "" || len(value) != 2 || statusData == "" || idData == "" {
-//			http.Error(w, "id ,key and status is required field and should be combinaton of Row and col index", http.StatusBadRequest)
-//			return
-//		}
-//
-//		status := SeatStatus(statusData)
-//
-//		if ok := status.IsValid(); !ok {
-//
-//			http.Error(w, "statsu shoudl SeatStatus type", http.StatusBadRequest)
-//			return
-//		}
-//		data := strings.Split(value, "")
-//
-//		row, err := strconv.Atoi(data[0])
-//		if err != nil {
-//			http.Error(w, err.Error(), http.StatusBadRequest)
-//			return
-//
-//		}
-//		col, err := strconv.Atoi(data[1])
-//		if err != nil {
-//			http.Error(w, err.Error(), http.StatusBadRequest)
-//			return
-//
-//		}
-//
-//		id, err := strconv.Atoi(idData)
-//		if err != nil {
-//			http.Error(w, err.Error(), http.StatusBadRequest)
-//			return
-//
-//		}
-//	}
+func (r ChangStatusRequest) Validate() error {
+	// dummy checks
+	if r.Id >= len(Movies) {
+		return fmt.Errorf("no movie exists")
+	}
+	seatData := Movies[r.Id]
+	if r.Row >= seatData.Row || r.Col >= seatData.Coloum {
+		return fmt.Errorf("no such seat exist")
+	}
+	seatStatus := SeatStatus(r.Status)
+	switch seatStatus {
+	case Booked, Hold, Vacant:
+		return nil
+	default:
+		return fmt.Errorf("status shoud be Seat Staus type")
+
+	}
+}
+
 func ChangeSeatStatus(w http.ResponseWriter, r *http.Request) {
 	res, err := ReadJson[ChangStatusRequest](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-	// TODO: alot of work and cases to handle
-	seat := &Movies[res.Id].Seats[res.Row][res.Col]
-	if seat.Status != Vacant && res.UserID != seat.LockedBy {
-		http.Error(w, "seat is not vaccant ,please selected any other", http.StatusForbidden)
 		return
 	}
-	seat.Status = res.Status
-	seat.LockedBy = res.UserID
+	if err := res.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	seat := &Movies[res.Id].Seats[res.Row][res.Col]
+
+	switch res.Status {
+	case Hold:
+		err = seat.Hold(res.UserID)
+	case Booked:
+		err = seat.Book(res.UserID)
+	default:
+		err = seat.Vaccant(res.UserID)
+
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+	fmt.Fprint(w, "request successfull..")
 }

@@ -140,7 +140,7 @@ const main = async () => {
 
       movieData[selectedMovie].Seats = value;
       renderScreen(value);
-    }, 2000);
+    }, 1500);
   };
   const init = async (selectedMovie) => {
     if (!movieData) {
