@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "http://localhost:8080/api/v1/movie";
 const main = async () => {
   const USER_ID = Math.random().toString(36);
   let selectedMovie = 0;
@@ -9,7 +9,7 @@ const main = async () => {
   const seatContainer = document.getElementById("seat-container");
 
   const MovieData = async () => {
-    const data = await fetch(`${BASE_URL}/movies`);
+    const data = await fetch(`${BASE_URL}/`);
     const value = await data.json();
     return value;
   };

@@ -18,8 +18,11 @@ func main() {
 	flag.Parse()
 	router := internal.NewRouter()
 	server := http.Server{
-		Addr:    fmt.Sprintf(":%d", *port),
-		Handler: router,
+		Addr:         fmt.Sprintf(":%d", *port),
+		Handler:      router,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
 	go func(server *http.Server) {
 		fmt.Printf("server is up and running at %s \n", server.Addr)
