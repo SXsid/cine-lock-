@@ -81,6 +81,7 @@ func ChangeSeatStatus(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	// INFO: dumy get the data form the db with a db check if posilbe that seat is vacnat or not
 	seat := &Movies[res.Id].Seats[res.Row][res.Col]
 
 	if err := NormalBooking(seat, res.Status, res.UserID); err != nil {

@@ -1,6 +1,10 @@
 package internal
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+	"time"
+)
 
 type Movie struct {
 	Name   string
@@ -19,6 +23,7 @@ const (
 )
 
 type Seat struct {
+	mu       sync.Mutex
 	Name     string
 	Status   SeatStatus
 	LockedBy string
@@ -28,6 +33,11 @@ func (s *Seat) Hold(userId string) error {
 	if s.Status != Vacant {
 		return fmt.Errorf("seat is not vaccant")
 	}
+	// to simulate the  db right let say this slep
+	// cause if any unprotect go rouine will try to update
+	// willsee the value and value will be vacnt and both wil get update the the seat
+	// both get seat allocation
+	time.Sleep(10 * time.Millisecond)
 	s.LockedBy = userId
 	s.Status = Hold
 	return nil
