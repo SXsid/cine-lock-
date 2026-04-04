@@ -83,16 +83,7 @@ func ChangeSeatStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	seat := &Movies[res.Id].Seats[res.Row][res.Col]
 
-	switch res.Status {
-	case Hold:
-		err = seat.Hold(res.UserID)
-	case Booked:
-		err = seat.Book(res.UserID)
-	default:
-		err = seat.Vaccant(res.UserID)
-
-	}
-	if err != nil {
+	if err := NormalBooking(seat, res.Status, res.UserID); err != nil {
 		WriteError(w, err.Error(), http.StatusForbidden)
 		return
 	}
