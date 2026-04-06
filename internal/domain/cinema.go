@@ -1,4 +1,4 @@
-package internal
+package domain
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ const (
 )
 
 type Seat struct {
-	mu       sync.Mutex
+	Mu       sync.Mutex
 	Name     string
 	Status   SeatStatus
 	LockedBy string
@@ -60,7 +60,7 @@ func (s *Seat) Vaccant(userId string) error {
 	return nil
 }
 
-func generateSeats(row, col int) [][]Seat {
+func GenerateSeats(row, col int) [][]Seat {
 	seats := [][]Seat{}
 	for i := range row {
 		rowSeats := []Seat{}

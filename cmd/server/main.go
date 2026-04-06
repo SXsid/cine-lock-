@@ -10,13 +10,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/SXsid/cine-lock/internal"
+	"github.com/SXsid/cine-lock/internal/api"
+	"github.com/SXsid/cine-lock/internal/service"
 )
 
 func main() {
 	port := flag.Int("port", 8080, "HTPP server port")
 	flag.Parse()
-	router := internal.NewRouter()
+	bookingService := service.NewBookingService()
+	bookingHandler := api.NewBookingHandler(bookingService)
+	router := api.NewRouter(bookingHandler)
 	server := http.Server{
 		Addr:         fmt.Sprintf(":%d", *port),
 		Handler:      router,

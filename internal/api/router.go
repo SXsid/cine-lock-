@@ -1,4 +1,4 @@
-package internal
+package api
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func NewRouter() http.Handler {
+func NewRouter(bookingHandler *BookingHandler) http.Handler {
 	r := chi.NewRouter()
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://*"},
@@ -25,19 +25,19 @@ func NewRouter() http.Handler {
 	r.Use(middleware.Recoverer)
 
 	r.Route("/api", func(r chi.Router) {
-		r.Mount("/v1", v1Routes())
+		r.Mount("/v1", v1Routes(bookingHandler))
 	})
 
 	r.Handle("/*", http.FileServerFS(root.StaticAssests))
 	return r
 }
 
-func v1Routes() http.Handler {
+func v1Routes(bookingHandler *BookingHandler) http.Handler {
 	r := chi.NewRouter()
 	r.Route("/movie", func(r chi.Router) {
-		r.Get("/", AllMoviesHandler)
-		r.Get("/poll-status", PollSeatStatus)
-		r.Patch("/seat-status", ChangeSeatStatus)
+		r.Get("/", bookingHandler.AllMoviesHandler)
+		r.Get("/poll-status", bookingHandler.PollSeatStatus)
+		r.Patch("/seat-status", bookingHandler.ChangeSeatStatus)
 	})
 
 	return r
